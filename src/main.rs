@@ -1,35 +1,11 @@
-use actix_web::{get, web, App, HttpServer, Responder, HttpResponse};
-use serde::Serialize;
-
-#[derive(Serialize)]
-struct Book {
-    title: String,
-    author: String,
+mod pages {
+    pub mod books;
+    pub mod echo;
 }
 
-#[get("/")]
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body(r#"<a href="/books">Go to books</a>"#)
-}
-
-#[get("/echo")]
-async fn echo(req_body: String) -> impl Responder {
-    req_body
-}
-
-#[get("/books")]
-async fn get_books() -> impl Responder {
-    web::Json(vec![
-        Book {
-            title: "Moby Dick".to_string(),
-            author: "Herman Melville".to_string(),
-        },
-        Book {
-            title: "The Great Gatsby".to_string(),
-            author: "F. Scott Fitzgerald".to_string(),
-        },
-    ])
-}
+use actix_web::{App, HttpServer};
+use pages::books::get_books;
+use pages::echo::echo;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -37,9 +13,8 @@ async fn main() -> std::io::Result<()> {
 
     let server = HttpServer::new(|| {
         App::new()
-            .service(hello)
-            .service(echo)
             .service(get_books)
+            .service(echo)
     })
         .bind("127.0.0.1:8080")?;
 
